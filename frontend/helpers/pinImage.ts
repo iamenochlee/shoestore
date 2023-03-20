@@ -2,16 +2,13 @@ import axios from "axios";
 import type { StateDispatch } from "../types";
 
 export const pinImage = async (
-  selectedFile: File[],
+  selectedFile: File,
   name: string,
   setLoading: StateDispatch<boolean>
 ) => {
   let result;
   const formData = new FormData();
-
-  Array.from(selectedFile).forEach((file) => {
-    formData.append("file", file);
-  });
+  formData.append("file", selectedFile);
 
   const metadata = JSON.stringify({
     name,

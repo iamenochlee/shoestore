@@ -1,29 +1,25 @@
 import { useReducer, useState } from "react";
 import Input from "./Input";
 import ImageInput from "./ImageInput";
-import type { ShoeDetails, AddShoeProps } from "../types";
+import type { Args, Preview, ShoeDetails, AddShoeProps } from "../types";
 import { abi, contractAddress } from "../constants";
 import { pinImage } from "../helpers/pinImage";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { parseEther } from "ethers/lib/utils.js";
-import { BigNumber } from "ethers";
+
+const defaultDetails = {
+  name: "",
+  brand: "",
+  size: 0,
+  price: 0,
+  image: undefined,
+};
 
 const AddShoe = ({ setIndex }: AddShoeProps) => {
-  const defaultDetails = {
-    name: "",
-    brand: "",
-    size: 0,
-    price: 0,
-    image: undefined,
-  };
-  const [args, setArgs] = useState<
-    (string | number | File | BigNumber | undefined)[] | undefined
-  >(undefined);
+  const [args, setArgs] = useState<Args>(undefined);
   const [loading, setLoading] = useState(false);
   const [toShow, setToShow] = useState(false);
-  const [preview, setPreview] = useState<
-    string | null | ArrayBuffer | undefined
-  >(null);
+  const [preview, setPreview] = useState<Preview>(null);
   const [prepared, setPrepared] = useState(false);
   const [shoeDetails, updateShoeDetails] = useReducer(
     (current: ShoeDetails, update: Partial<ShoeDetails>) => {
@@ -45,11 +41,10 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
     if (!shoeDetails.image) return;
     setLoading(true);
     const imgUrl = await pinImage(
-      [shoeDetails.image],
+      shoeDetails.image,
       shoeDetails.name,
       setLoading
     );
-    console.log("img", imgUrl);
     const shoeDetailsArgs = [...Object.values(shoeDetails)];
     shoeDetailsArgs[3] = parseEther(shoeDetailsArgs[3]?.toString() as string);
     shoeDetailsArgs.pop();
@@ -127,7 +122,6 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
           </button>
         </div>
       </form>
-
       {toShow && (
         <div className="px-6 is-flex mt-5 is-flex-direction-column ">
           <p className="is-centered" style={{ color: "green" }}>

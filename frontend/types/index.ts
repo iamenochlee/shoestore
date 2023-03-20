@@ -1,7 +1,13 @@
 import { BigNumber } from "ethers";
-import { SetStateAction } from "react";
 
-export type StateDispatch<T> = React.Dispatch<SetStateAction<T>>;
+export type StateDispatch<T> = React.Dispatch<T>;
+
+export type Args =
+  | (string | number | File | BigNumber | undefined)[]
+  | undefined;
+
+export type Preview = string | null | ArrayBuffer | undefined;
+
 export interface Shoe {
   id: BigNumber;
   name: string;
