@@ -1,10 +1,6 @@
 import { Shoe } from "../types";
 import { formatEther } from "ethers/lib/utils.js";
-import {
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { abi, contractAddress } from "../constants";
 
 const UserShoe = ({ shoe }: { shoe: Shoe }) => {
@@ -15,10 +11,7 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
     args: [shoe.id],
   });
 
-  const { isLoading, data, write: list } = useContractWrite(config);
-  const { isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-  });
+  const { isSuccess, isLoading, write: list } = useContractWrite(config);
 
   const { config: configUnlist } = usePrepareContractWrite({
     abi,
@@ -29,13 +22,10 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
 
   const {
     isLoading: unlistIsLoading,
-    data: unlistData,
+    isSuccess: isUnlistSuccess,
     write: unlist,
   } = useContractWrite(configUnlist);
 
-  const { isSuccess: isUnlistSuccess } = useWaitForTransaction({
-    hash: unlistData?.hash,
-  });
   return (
     <div className="column is-3">
       <div className="card is-rounded">
@@ -53,14 +43,16 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
               Price:
               <span className="has-text-weight-bold">
                 {" "}
-                {formatEther(shoe.price.toString())} ETH
+                {formatEther(shoe.price.toString()).slice(0, 4)} ETH
               </span>
             </li>
           </ul>
           {shoe.isListed ? (
             <button
               disabled={unlistIsLoading}
-              className={`button is-info is-fullwidth has-text-weight-bold ${
+              className={`button ${
+                isUnlistSuccess ? "is-warning" : "is-info"
+              } is-fullwidth has-text-weight-bold ${
                 unlistIsLoading ? "is-loading" : ""
               }`}
               onClick={unlist}>
@@ -69,7 +61,9 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
           ) : (
             <button
               disabled={isLoading}
-              className={`button is-primary is-fullwidth has-text-weight-bold ${
+              className={`button ${
+                isSuccess ? "is-warning" : "is-primary"
+              } is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
               onClick={list}>

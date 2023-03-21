@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  useAccount,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
 import type { Shoe } from "../types";
 import { abi, contractAddress } from "../constants";
 import { formatEther } from "ethers/lib/utils.js";
@@ -23,10 +18,7 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
     },
   });
 
-  const { isLoading, data, write: buy } = useContractWrite(config);
-  const { isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-  });
+  const { isLoading, write: buy, isSuccess } = useContractWrite(config);
 
   const { config: unlistConfig } = usePrepareContractWrite({
     abi,
@@ -37,13 +29,9 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
 
   const {
     isLoading: unlistIsLoading,
-    data: unlistData,
     write: unlist,
+    isSuccess: isUnlistSuccess,
   } = useContractWrite(unlistConfig);
-
-  const { isSuccess: isUnlistSuccess } = useWaitForTransaction({
-    hash: unlistData?.hash,
-  });
 
   return (
     <div className="column is-3">
@@ -69,7 +57,10 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
           {shoe.owner === address ? (
             <button
               disabled={unlistIsLoading}
-              className={`button is-info is-fullwidth has-text-weight-bold ${
+              className={`button 
+              ${
+                isUnlistSuccess ? "is-warning" : "is-info"
+              } is-fullwidth has-text-weight-bold ${
                 unlistIsLoading ? "is-loading" : ""
               }`}
               onClick={unlist}>
@@ -78,7 +69,9 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
           ) : (
             <button
               disabled={isLoading || !isConnected}
-              className={`button is-primary is-fullwidth has-text-weight-bold ${
+              className={`button ${
+                isSuccess ? "is-warning" : "is-primary"
+              }              is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
               onClick={buy}>
