@@ -16,6 +16,9 @@ const config: HardhatUserConfig = {
     spacing: 2,
     format: "json",
   },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
   networks: {
     goerli: {
       accounts: [process.env.PRIVATE_KEY || ""],
