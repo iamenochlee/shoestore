@@ -27,13 +27,13 @@ function App() {
 
   return (
     <>
-      <header className="mb-6 p-3 px-5 is-flex is-align-items-center height-50">
-        <h1 className="mr-6 has-text-weight-bold">MEGA SHOES</h1>
-        <div className="ml-6">
-          <ConnectKitButton showBalance={true} />
-        </div>
-      </header>
       <div className="App p-3 px-6">
+        <header className="mb-6 is-flex is-align-items-center height-50">
+          <h1 className="mr-6 has-text-weight-bold">MEGA SHOES</h1>
+          <div className="ml-6">
+            <ConnectKitButton showBalance={true} />
+          </div>
+        </header>
         <div className="columns is-flex mb-6">
           <div className={`column ${isAdmin ? "is-two-thirds" : ""}`}>
             <div className="columns is-flex is-flex-direction-column">
