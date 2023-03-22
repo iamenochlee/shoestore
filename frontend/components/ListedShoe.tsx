@@ -20,7 +20,7 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
 
   const { isLoading, write: buy, isSuccess } = useContractWrite(config);
 
-  const { config: unlistConfig } = usePrepareContractWrite({
+  const { config: delistConfig } = usePrepareContractWrite({
     abi,
     address: contractAddress,
     functionName: "delistShoe",
@@ -28,10 +28,10 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
   });
 
   const {
-    isLoading: unlistIsLoading,
+    isLoading: delistIsLoading,
     write: unlist,
-    isSuccess: isUnlistSuccess,
-  } = useContractWrite(unlistConfig);
+    isSuccess: isDelistSuccess,
+  } = useContractWrite(delistConfig);
 
   return (
     <div className="column is-3">
@@ -50,21 +50,21 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               Price:
               <span className="has-text-weight-bold">
                 {" "}
-                {formatEther(shoe.price.toString()).slice(0, 4)} ETH
+                {formatEther(shoe.price.toString()).slice(0, 5)} ETH
               </span>
             </li>
           </ul>
           {shoe.owner === address ? (
             <button
-              disabled={unlistIsLoading}
+              disabled={delistIsLoading}
               className={`button 
               ${
-                isUnlistSuccess ? "is-warning" : "is-info"
+                isDelistSuccess ? "is-warning" : "is-info"
               } is-fullwidth has-text-weight-bold ${
-                unlistIsLoading ? "is-loading" : ""
+                delistIsLoading ? "is-loading" : ""
               }`}
               onClick={unlist}>
-              {isUnlistSuccess ? "Unlisted" : "UnList"}
+              {isDelistSuccess ? "Delisted" : "Delist"}
             </button>
           ) : (
             <button
