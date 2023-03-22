@@ -6,31 +6,68 @@ describe("ShoeStore", function () {
   let shoeStore: ShoeStore;
   let owner: any;
   let buyer: any;
+  let admin: any;
 
   beforeEach(async function () {
-    [owner, buyer] = await ethers.getSigners();
+    [owner, buyer, admin] = await ethers.getSigners();
     const ShoeStore = await ethers.getContractFactory("ShoeStore");
 
-    shoeStore = await ShoeStore.deploy();
+    shoeStore = await ShoeStore.deploy(admin.address);
     await shoeStore.deployed();
   });
 
+  describe("deployments", function () {
+    it("sets the admins correctly", async () => {
+      expect(await shoeStore.admins(owner.address)).to.equal(true);
+      expect(await shoeStore.admins(admin.address)).to.equal(true);
+      expect(await shoeStore.admins(buyer.address)).to.equal(false);
+    });
+    it("sets the commission rate correctly", async () => {
+      expect(await shoeStore.commissionRate()).to.equal(1);
+    });
+  });
+
   describe("createShoe", function () {
-    it("should create a new shoe with image", async function () {
+    it("should allow admins to create a new shoe", async function () {
       await shoeStore.createShoe(
         "Jordan 1",
         "Nike",
         10,
         ethers.utils.parseEther("1"),
-        "https://example.com/image.jpg",
+        "https://example.com/image.jpg"
       );
+      await shoeStore
+        .connect(admin)
+        .createShoe(
+          "Jordan 2",
+          "Nike",
+          5,
+          ethers.utils.parseEther("2"),
+          "https://example.com/image.jpg"
+        );
       const shoe = await shoeStore.shoes(0);
       expect(shoe.name).to.equal("Jordan 1");
-      expect(shoe.brand).to.equal("Nike");
       expect(shoe.size).to.equal(10);
       expect(shoe.price).to.equal(ethers.utils.parseEther("1"));
       expect(shoe.owner).to.equal(owner.address);
-      expect(shoe.image).to.equal("https://example.com/image.jpg");
+      const shoe2 = await shoeStore.shoes(1);
+      expect(shoe2.name).to.equal("Jordan 2");
+      expect(shoe2.size).to.equal(5);
+      expect(shoe2.price).to.equal(ethers.utils.parseEther("2"));
+      expect(shoe2.owner).to.equal(admin.address);
+    });
+    it("should revert if a user(non-admin) is trying to create a shoe", async () => {
+      await expect(
+        shoeStore
+          .connect(buyer)
+          .createShoe(
+            "Jordan 3",
+            "Nike",
+            5,
+            ethers.utils.parseEther("3"),
+            "https://example.com/image.jpg"
+          )
+      ).to.be.revertedWith("You are not Permitted");
     });
   });
 
@@ -58,7 +95,7 @@ describe("ShoeStore", function () {
           product.brand,
           product.size,
           ethers.utils.parseEther(product.price.toString()),
-          product.image,
+          product.image
         );
       }
     });
@@ -85,7 +122,7 @@ describe("ShoeStore", function () {
         "Nike",
         10,
         ethers.utils.parseEther("1"),
-        "https://example.com/image.jpg",
+        "https://example.com/image.jpg"
       );
       await shoeStore.listShoe(0);
     });
@@ -100,13 +137,13 @@ describe("ShoeStore", function () {
     });
     it("should not allow the owner to relist a listed shoe for sale", async function () {
       await expect(shoeStore.listShoe(0)).to.be.revertedWith(
-        "Shoe is already listed",
+        "Shoe is already listed"
       );
     });
 
     it("should revert if a non-owner is trying to list a shoe for sale", async function () {
       await expect(shoeStore.connect(buyer).listShoe(0)).to.be.revertedWith(
-        "You do not own this shoe",
+        "You do not own this shoe"
       );
     });
     it("should allow the owner to change the price of the shoe", async function () {
@@ -128,7 +165,7 @@ describe("ShoeStore", function () {
         "Nike",
         10,
         ethers.utils.parseEther("1"),
-        "https://example.com/image.jpg",
+        "https://example.com/image.jpg"
       );
     });
     it("should allow a buyer to buy a listed shoe", async () => {
@@ -152,15 +189,14 @@ describe("ShoeStore", function () {
       expect(shoeOwner.owner).to.equal(buyer.address);
 
       describe("withdraw", function () {
-        it("should withdraw and transfer the balance to the owner", async () => {
+        it("should withdraw and transfer the balance to the admin", async () => {
           const balance = await ethers.provider.getBalance(shoeStore.address);
-
           await expect(shoeStore.withdraw()).to.changeEtherBalance(
             owner,
-            balance,
+            balance
           );
           expect(await ethers.provider.getBalance(shoeStore.address)).to.equal(
-            0,
+            0
           );
         });
       });

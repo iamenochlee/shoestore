@@ -43,7 +43,7 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
               Price:
               <span className="has-text-weight-bold">
                 {" "}
-                {formatEther(shoe.price.toString()).slice(0, 4)} ETH
+                {formatEther(shoe.price.toString()).slice(0, 5)} ETH
               </span>
             </li>
           </ul>

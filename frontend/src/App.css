@@ -3,18 +3,27 @@
   font-size: 0.9rem;
 }
 
-body {
-  min-height: 120vh;
+#root {
+  display: flex;
+  min-height: 105vh;
+  flex-direction: column;
+  justify-content: space-between;
 }
 h1 {
-  font-size: 1.2rem !important;
+  font-size: 1.8rem !important;
   text-align: center;
 }
 h2,
 li {
   font-size: 0.9rem !important;
 }
+h3 {
+  font-size: 1.2rem !important;
+}
 
+footer {
+  min-height: 60px;
+}
 li {
   cursor: pointer;
 }
