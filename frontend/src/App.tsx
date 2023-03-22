@@ -34,9 +34,9 @@ function App() {
             <ConnectKitButton showBalance={true} />
           </div>
         </header>
-        <div className="columns is-flex mb-6">
+        <div className="columns is-flex">
           <div className={`column ${isAdmin ? "is-two-thirds" : ""}`}>
-            <div className="columns is-flex is-flex-direction-column">
+            <div className="columns is-flex is-flex-direction-column main">
               <Navbar
                 setIndex={setIndex}
                 isConnected={isConnected}
