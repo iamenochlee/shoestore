@@ -22,7 +22,7 @@ const ListedShoes = () => {
           return <ListedShoe key={shoe.id._hex} shoe={shoe} />;
         })
       ) : (
-        <h2 className="mt-6 px-6 ">
+        <h2 className="mt-6 px-5 ">
           {contractRead.isFetching
             ? "Fetching Listed Shoes..."
             : "No Shoes are Currently For Sale"}
