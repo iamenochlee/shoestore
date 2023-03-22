@@ -6,7 +6,7 @@ async function main() {
   const [owner] = await ethers.getSigners();
   const ShoeStore = await ethers.getContractFactory("ShoeStore");
   const shoeStore = await ShoeStore.deploy(
-    "0xE22C8D114e9066095d9e6716A85132cFd83Be699"
+    "0x0b5bdf6d8886aceea84da2fdeb15f9c7418a3cad"
   );
   await shoeStore.deployed();
   await run(shoeStore, owner.address);
@@ -25,4 +25,3 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
-//    "0x0b5bdf6d8886aceea84da2fdeb15f9c7418a3cad"
