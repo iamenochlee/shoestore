@@ -14,11 +14,24 @@ contract ShoeStore {
         bool isListed;
     }
 
+    //an history struct for purchases
+    struct History {
+        uint id;
+        string name;
+        string brand;
+        uint price;
+        address with;
+        string txType;
+    }
     // an array to store all the shoes
     Shoe[] public shoes;
 
+    //a mapping to store the history of a user
+    mapping(address => History[]) userHistory;
+
     //a mapping to store the admins of the shoestore
     mapping(address => bool) public admins;
+
     //the rate this marketplace will charge once a shoe is purchased.
     uint128 public commissionRate;
 
@@ -139,7 +152,7 @@ contract ShoeStore {
     }
 
     /// This function is called to purchase a shoe
-    /// it transfers owner of the shoe to the buyer
+    /// it transfers owner of the shoe to the buyer adds a new puchase History
     /// it removes commission of 1% and sends the remainning to the seller
     /// @param _shoeId the id of the shoe
     function buyShoe(uint256 _shoeId) public payable {
@@ -151,6 +164,26 @@ contract ShoeStore {
         shoes[_shoeId].owner = msg.sender;
         shoes[_shoeId].isListed = false;
         listedShoesCount--;
+        userHistory[msg.sender].push(
+            History({
+                id: _shoeId,
+                name: shoes[_shoeId].name,
+                brand: shoes[_shoeId].brand,
+                price: shoes[_shoeId].price,
+                with: seller,
+                txType: "bought"
+            })
+        );
+        userHistory[seller].push(
+            History({
+                id: _shoeId,
+                name: shoes[_shoeId].name,
+                brand: shoes[_shoeId].brand,
+                price: shoes[_shoeId].price,
+                with: msg.sender,
+                txType: "sold"
+            })
+        );
         emit ShoeBought(_shoeId, msg.sender, seller, shoes[_shoeId].price);
     }
 
@@ -188,6 +221,11 @@ contract ShoeStore {
             }
         }
         return result;
+    }
+
+    /// This fetches all user purchases history
+    function getUserHistory() public view returns (History[] memory) {
+        return userHistory[msg.sender];
     }
 
     /// This is called to withdraw all the balance of the contract

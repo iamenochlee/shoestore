@@ -167,8 +167,6 @@ describe("ShoeStore", function () {
         ethers.utils.parseEther("1"),
         "https://example.com/image.jpg"
       );
-    });
-    it("should allow a buyer to buy a listed shoe", async () => {
       const price = ethers.utils.parseEther("1");
       await shoeStore.connect(owner).listShoe(0);
 
@@ -181,7 +179,19 @@ describe("ShoeStore", function () {
         const gasCost = tx.gasPrice.mul(receipt.gasUsed);
         expect(balanceAfter.add(gasCost)).to.equal(balanceBefore.sub(price));
       }
+    });
+    it("should update the users history", async () => {
+      const sellerHistory = await shoeStore.getUserHistory();
+      const buyerHistory = await shoeStore.connect(buyer).getUserHistory();
 
+      expect(sellerHistory.length).to.equal(1);
+      expect(buyerHistory.length).to.equal(1);
+      expect(sellerHistory[0].with).to.equal(buyer.address);
+      expect(buyerHistory[0].with).to.equal(owner.address);
+      expect(sellerHistory[0].txType).to.equal("sold");
+      expect(buyerHistory[0].txType).to.equal("bought");
+    });
+    it("should transfer shoe ownership to the buyer", async () => {
       const shoeOwner = await shoeStore.shoes(0);
       const shoes = await shoeStore.getAllListedShoes();
       expect(shoes.length).to.equal(0);
@@ -189,7 +199,7 @@ describe("ShoeStore", function () {
       expect(shoeOwner.owner).to.equal(buyer.address);
 
       describe("withdraw", function () {
-        it("should withdraw and transfer the balance to the admin", async () => {
+        it("should transfer the balance to the admin", async () => {
           const balance = await ethers.provider.getBalance(shoeStore.address);
           await expect(shoeStore.withdraw()).to.changeEtherBalance(
             owner,
