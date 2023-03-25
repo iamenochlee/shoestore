@@ -1,13 +1,14 @@
-import { Shoe } from "../types";
+import React from "react";
+import { UserShoeProps } from "../types";
 import { formatEther } from "ethers/lib/utils.js";
 import { useContractWrite } from "wagmi";
 import { abi, contractAddress } from "../constants";
 
-const UserShoe = ({ shoe }: { shoe: Shoe }) => {
+const UserShoe = ({ shoe, refetch }: UserShoeProps) => {
   const {
     isSuccess,
     isLoading,
-    write: list,
+    writeAsync: list,
   } = useContractWrite({
     abi,
     address: contractAddress,
@@ -19,7 +20,7 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
   const {
     isLoading: unlistIsLoading,
     isSuccess: isUnlistSuccess,
-    write: unlist,
+    writeAsync: unlist,
   } = useContractWrite({
     abi,
     address: contractAddress,
@@ -57,7 +58,9 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 unlistIsLoading ? "is-loading" : ""
               }`}
-              onClick={() => unlist()}>
+              onClick={() => {
+                unlist().then(refetch);
+              }}>
               {isUnlistSuccess ? "Unlisted" : "UnList"}
             </button>
           ) : (
@@ -68,7 +71,9 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
-              onClick={() => list()}>
+              onClick={() => {
+                list().then(refetch);
+              }}>
               {isSuccess ? "Listed" : "List"}
             </button>
           )}

@@ -1,3 +1,4 @@
+import React from "react";
 import type { NavbarProps } from "../types";
 
 const Navbar = ({ setIndex, isConnected, index }: NavbarProps) => {

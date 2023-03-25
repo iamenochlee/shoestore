@@ -1,17 +1,15 @@
 import React from "react";
-import { useAccount, useContractWrite } from "wagmi";
-import type { Shoe } from "../types";
-import { abi, contractAddress } from "../constants";
 import { formatEther } from "ethers/lib/utils.js";
+import type { ListedShoeProps } from "../types";
+import { useAccount, useContractWrite } from "wagmi";
+import { abi, contractAddress } from "../constants";
 
-const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
-  const { isConnected } = useAccount();
-
-  const { address } = useAccount();
+const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
+  const { isConnected, address } = useAccount();
 
   const {
     isLoading,
-    write: buy,
+    writeAsync: buy,
     isSuccess,
   } = useContractWrite({
     abi,
@@ -26,7 +24,7 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
 
   const {
     isLoading: delistIsLoading,
-    write: unlist,
+    writeAsync: unlist,
     isSuccess: isDelistSuccess,
   } = useContractWrite({
     abi,
@@ -66,7 +64,9 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 delistIsLoading ? "is-loading" : ""
               }`}
-              onClick={() => unlist()}>
+              onClick={() => {
+                unlist().then(refetch);
+              }}>
               {isDelistSuccess ? "Delisted" : "Delist"}
             </button>
           ) : (
@@ -77,7 +77,9 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               }              is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
-              onClick={() => buy()}>
+              onClick={() => {
+                buy().then(refetch);
+              }}>
               {isSuccess ? "Bought" : "Buy"}
             </button>
           )}

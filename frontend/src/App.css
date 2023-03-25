@@ -36,6 +36,10 @@ li {
   margin-inline: auto;
 }
 
+.gap-1 {
+  gap: 2em;
+}
+
 .form {
   padding-inline: 3em;
   overflow: hidden;
