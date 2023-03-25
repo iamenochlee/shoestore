@@ -3,7 +3,7 @@ import "bulma/css/bulma.min.css";
 import { ConnectKitButton } from "connectkit";
 import { useAccount, useContractRead } from "wagmi";
 import ListedShoes from "../components/ListedShoes";
-import AddShoe from "../components/AddShoe";
+import CreateShoe from "../components/CreateShoe";
 import Navbar from "../components/Navbar";
 import UserShoes from "../components/UserShoes";
 import { useState } from "react";
@@ -48,7 +48,7 @@ function App() {
           </div>
           {isConnected && isAdmin && (
             <div className="column is-one-thirds">
-              <AddShoe setIndex={setIndex} />
+              <CreateShoe setIndex={setIndex} />
             </div>
           )}
         </div>

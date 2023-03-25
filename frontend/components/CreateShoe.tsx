@@ -4,7 +4,7 @@ import ImageInput from "./ImageInput";
 import type { Args, Preview, ShoeDetails, AddShoeProps } from "../types";
 import { abi, contractAddress } from "../constants";
 import { pinImage } from "../helpers/pinImage";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useContractWrite } from "wagmi";
 import { parseEther } from "ethers/lib/utils.js";
 
 const defaultDetails = {
@@ -15,7 +15,7 @@ const defaultDetails = {
   image: undefined,
 };
 
-const AddShoe = ({ setIndex }: AddShoeProps) => {
+const CreateShoe = ({ setIndex }: AddShoeProps) => {
   const [args, setArgs] = useState<Args>(undefined);
   const [loading, setLoading] = useState(false);
   const [toShow, setToShow] = useState(false);
@@ -28,14 +28,13 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
     defaultDetails
   );
 
-  const { config } = usePrepareContractWrite({
+  const { writeAsync: createShoe, isLoading } = useContractWrite({
     address: contractAddress,
     abi,
     functionName: "createShoe",
     args,
+    mode: "recklesslyUnprepared",
   });
-
-  const { writeAsync, isLoading } = useContractWrite(config);
 
   async function handleArgs() {
     if (!shoeDetails.image) return;
@@ -112,7 +111,7 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
           <button
             className={`button is-primary ${isLoading ? "is-loading" : ""}`}
             onClick={() =>
-              writeAsync?.().then(() => {
+              createShoe?.().then(() => {
                 setToShow(true);
                 updateShoeDetails(defaultDetails);
                 setPreview(null);
@@ -143,4 +142,4 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
   );
 };
 
-export default AddShoe;
+export default CreateShoe;

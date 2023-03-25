@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const config: HardhatUserConfig = {
-  // defaultNetwork: "localhost",
+  defaultNetwork: "localhost",
   solidity: "0.8.18",
   abiExporter: {
     path: "../frontend/constants",

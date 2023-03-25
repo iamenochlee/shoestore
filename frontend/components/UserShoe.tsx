@@ -1,30 +1,32 @@
 import { Shoe } from "../types";
 import { formatEther } from "ethers/lib/utils.js";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useContractWrite } from "wagmi";
 import { abi, contractAddress } from "../constants";
 
 const UserShoe = ({ shoe }: { shoe: Shoe }) => {
-  const { config } = usePrepareContractWrite({
+  const {
+    isSuccess,
+    isLoading,
+    write: list,
+  } = useContractWrite({
     abi,
     address: contractAddress,
     functionName: "listShoe",
     args: [shoe.id],
-  });
-
-  const { isSuccess, isLoading, write: list } = useContractWrite(config);
-
-  const { config: configUnlist } = usePrepareContractWrite({
-    abi,
-    address: contractAddress,
-    functionName: "delistShoe",
-    args: [shoe.id],
+    mode: "recklesslyUnprepared",
   });
 
   const {
     isLoading: unlistIsLoading,
     isSuccess: isUnlistSuccess,
     write: unlist,
-  } = useContractWrite(configUnlist);
+  } = useContractWrite({
+    abi,
+    address: contractAddress,
+    functionName: "delistShoe",
+    args: [shoe.id],
+    mode: "recklesslyUnprepared",
+  });
 
   return (
     <div className="column is-3">
@@ -55,7 +57,7 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 unlistIsLoading ? "is-loading" : ""
               }`}
-              onClick={unlist}>
+              onClick={() => unlist()}>
               {isUnlistSuccess ? "Unlisted" : "UnList"}
             </button>
           ) : (
@@ -66,7 +68,7 @@ const UserShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
-              onClick={list}>
+              onClick={() => list()}>
               {isSuccess ? "Listed" : "List"}
             </button>
           )}

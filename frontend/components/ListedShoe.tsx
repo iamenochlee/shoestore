@@ -1,5 +1,5 @@
 import React from "react";
-import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useAccount, useContractWrite } from "wagmi";
 import type { Shoe } from "../types";
 import { abi, contractAddress } from "../constants";
 import { formatEther } from "ethers/lib/utils.js";
@@ -8,7 +8,12 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
   const { isConnected } = useAccount();
 
   const { address } = useAccount();
-  const { config } = usePrepareContractWrite({
+
+  const {
+    isLoading,
+    write: buy,
+    isSuccess,
+  } = useContractWrite({
     abi,
     address: contractAddress,
     functionName: "buyShoe",
@@ -16,22 +21,20 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
     overrides: {
       value: shoe.price,
     },
-  });
-
-  const { isLoading, write: buy, isSuccess } = useContractWrite(config);
-
-  const { config: delistConfig } = usePrepareContractWrite({
-    abi,
-    address: contractAddress,
-    functionName: "delistShoe",
-    args: [shoe.id],
+    mode: "recklesslyUnprepared",
   });
 
   const {
     isLoading: delistIsLoading,
     write: unlist,
     isSuccess: isDelistSuccess,
-  } = useContractWrite(delistConfig);
+  } = useContractWrite({
+    abi,
+    address: contractAddress,
+    functionName: "delistShoe",
+    args: [shoe.id],
+    mode: "recklesslyUnprepared",
+  });
 
   return (
     <div className="column is-3">
@@ -63,7 +66,7 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 delistIsLoading ? "is-loading" : ""
               }`}
-              onClick={unlist}>
+              onClick={() => unlist()}>
               {isDelistSuccess ? "Delisted" : "Delist"}
             </button>
           ) : (
@@ -74,7 +77,7 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               }              is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
-              onClick={buy}>
+              onClick={() => buy()}>
               {isSuccess ? "Bought" : "Buy"}
             </button>
           )}
