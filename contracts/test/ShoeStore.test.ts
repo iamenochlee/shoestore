@@ -181,8 +181,8 @@ describe("ShoeStore", function () {
       }
     });
     it("should update the users history", async () => {
-      const sellerHistory = await shoeStore.getUserHistory();
-      const buyerHistory = await shoeStore.connect(buyer).getUserHistory();
+      const sellerHistory = await shoeStore.getUserHistory(owner.address);
+      const buyerHistory = await shoeStore.getUserHistory(buyer.address);
 
       expect(sellerHistory.length).to.equal(1);
       expect(buyerHistory.length).to.equal(1);

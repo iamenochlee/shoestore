@@ -224,8 +224,10 @@ contract ShoeStore {
     }
 
     /// This fetches all user purchases history
-    function getUserHistory() public view returns (History[] memory) {
-        return userHistory[msg.sender];
+    function getUserHistory(
+        address _owner
+    ) public view returns (History[] memory) {
+        return userHistory[_owner];
     }
 
     /// This is called to withdraw all the balance of the contract
