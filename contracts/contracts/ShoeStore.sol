@@ -14,11 +14,24 @@ contract ShoeStore {
         bool isListed;
     }
 
+    //an history struct for purchases
+    struct History {
+        uint id;
+        string name;
+        string brand;
+        uint price;
+        string txType;
+        uint time;
+    }
     // an array to store all the shoes
     Shoe[] public shoes;
 
+    //a mapping to store the history of a user
+    mapping(address => History[]) userHistory;
+
     //a mapping to store the admins of the shoestore
     mapping(address => bool) public admins;
+
     //the rate this marketplace will charge once a shoe is purchased.
     uint128 public commissionRate;
 
@@ -93,6 +106,16 @@ contract ShoeStore {
             Shoe(id, _name, _brand, _size, msg.sender, _price, _image, false)
         );
         emit ShoeCreated(id, _name, _brand, _size, msg.sender, _price, _image);
+        userHistory[msg.sender].push(
+            History({
+                id: id,
+                name: _name,
+                brand: _brand,
+                price: _price,
+                txType: "create",
+                time: block.timestamp
+            })
+        );
     }
 
     /// This is called to change the price of shoe
@@ -139,7 +162,7 @@ contract ShoeStore {
     }
 
     /// This function is called to purchase a shoe
-    /// it transfers owner of the shoe to the buyer
+    /// it transfers owner of the shoe to the buyer adds a new puchase History
     /// it removes commission of 1% and sends the remainning to the seller
     /// @param _shoeId the id of the shoe
     function buyShoe(uint256 _shoeId) public payable {
@@ -151,6 +174,26 @@ contract ShoeStore {
         shoes[_shoeId].owner = msg.sender;
         shoes[_shoeId].isListed = false;
         listedShoesCount--;
+        userHistory[msg.sender].push(
+            History({
+                id: _shoeId,
+                name: shoes[_shoeId].name,
+                brand: shoes[_shoeId].brand,
+                price: shoes[_shoeId].price,
+                txType: "bought",
+                time: block.timestamp
+            })
+        );
+        userHistory[seller].push(
+            History({
+                id: _shoeId,
+                name: shoes[_shoeId].name,
+                brand: shoes[_shoeId].brand,
+                price: shoes[_shoeId].price,
+                txType: "sold",
+                time: block.timestamp
+            })
+        );
         emit ShoeBought(_shoeId, msg.sender, seller, shoes[_shoeId].price);
     }
 
@@ -188,6 +231,13 @@ contract ShoeStore {
             }
         }
         return result;
+    }
+
+    /// This fetches all user purchases history
+    function getUserHistory(
+        address _owner
+    ) public view returns (History[] memory) {
+        return userHistory[_owner];
     }
 
     /// This is called to withdraw all the balance of the contract

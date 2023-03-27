@@ -1,14 +1,21 @@
 import React from "react";
-import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
-import type { Shoe } from "../types";
-import { abi, contractAddress } from "../constants";
 import { formatEther } from "ethers/lib/utils.js";
+import type { ListedShoeProps } from "../types";
+import { useAccount, useContractWrite } from "wagmi";
+import { abi, contractAddress } from "../constants";
+import { useStore } from "zustand";
+import { isAdminStore, refchTransactionsStore } from "../store";
 
-const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
-  const { isConnected } = useAccount();
+const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
+  const { isConnected, address } = useAccount();
+  const { refetch: refetchTxs } = useStore(refchTransactionsStore);
+  const { isAdmin } = useStore(isAdminStore);
 
-  const { address } = useAccount();
-  const { config } = usePrepareContractWrite({
+  const {
+    isLoading,
+    writeAsync: buy,
+    isSuccess,
+  } = useContractWrite({
     abi,
     address: contractAddress,
     functionName: "buyShoe",
@@ -16,27 +23,25 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
     overrides: {
       value: shoe.price,
     },
-  });
-
-  const { isLoading, write: buy, isSuccess } = useContractWrite(config);
-
-  const { config: delistConfig } = usePrepareContractWrite({
-    abi,
-    address: contractAddress,
-    functionName: "delistShoe",
-    args: [shoe.id],
+    mode: "recklesslyUnprepared",
   });
 
   const {
     isLoading: delistIsLoading,
-    write: unlist,
+    writeAsync: delist,
     isSuccess: isDelistSuccess,
-  } = useContractWrite(delistConfig);
+  } = useContractWrite({
+    abi,
+    address: contractAddress,
+    functionName: "delistShoe",
+    args: [shoe.id],
+    mode: "recklesslyUnprepared",
+  });
 
   return (
-    <div className="column is-3">
-      <div className="card is-rounded">
-        <div>
+    <div className={`column ${isAdmin ? "is-3" : "is-2"}`}>
+      <div className="card has-background-black-ter has-text-white is-rounded">
+        <div className="card-image is-rounded">
           <figure className="image is-1by1" style={{ objectFit: "cover" }}>
             <img src={shoe.image} alt={shoe.name} />
           </figure>
@@ -63,7 +68,9 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               } is-fullwidth has-text-weight-bold ${
                 delistIsLoading ? "is-loading" : ""
               }`}
-              onClick={unlist}>
+              onClick={() => {
+                delist().then(refetch);
+              }}>
               {isDelistSuccess ? "Delisted" : "Delist"}
             </button>
           ) : (
@@ -74,7 +81,14 @@ const ListedShoe = ({ shoe }: { shoe: Shoe }) => {
               }              is-fullwidth has-text-weight-bold ${
                 isLoading ? "is-loading" : ""
               }`}
-              onClick={buy}>
+              onClick={() => {
+                buy().then(() => {
+                  refetch();
+                  setTimeout(() => {
+                    refetchTxs?.();
+                  }, 1000);
+                });
+              }}>
               {isSuccess ? "Bought" : "Buy"}
             </button>
           )}

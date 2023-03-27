@@ -1,11 +1,14 @@
+import React from "react";
+import { parseEther } from "ethers/lib/utils.js";
 import { useReducer, useState } from "react";
-import Input from "./Input";
-import ImageInput from "./ImageInput";
-import type { Args, Preview, ShoeDetails, AddShoeProps } from "../types";
+import { useContractWrite } from "wagmi";
 import { abi, contractAddress } from "../constants";
 import { pinImage } from "../helpers/pinImage";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
-import { parseEther } from "ethers/lib/utils.js";
+import type { AddShoeProps, Args, Preview, ShoeDetails } from "../types";
+import ImageInput from "./ImageInput";
+import Input from "./Input";
+import { useStore } from "zustand";
+import { refchListedStore } from "../store";
 
 const defaultDetails = {
   name: "",
@@ -15,12 +18,15 @@ const defaultDetails = {
   image: undefined,
 };
 
-const AddShoe = ({ setIndex }: AddShoeProps) => {
+const CreateShoe = ({ setIndex }: AddShoeProps) => {
   const [args, setArgs] = useState<Args>(undefined);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [toShow, setToShow] = useState(false);
   const [preview, setPreview] = useState<Preview>(null);
   const [prepared, setPrepared] = useState(false);
+  const { refetch } = useStore(refchListedStore);
+
   const [shoeDetails, updateShoeDetails] = useReducer(
     (current: ShoeDetails, update: Partial<ShoeDetails>) => {
       return { ...current, ...update };
@@ -28,35 +34,37 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
     defaultDetails
   );
 
-  const { config } = usePrepareContractWrite({
+  const { writeAsync: createShoe, isLoading } = useContractWrite({
     address: contractAddress,
     abi,
     functionName: "createShoe",
     args,
+    mode: "recklesslyUnprepared",
   });
-
-  const { writeAsync, isLoading } = useContractWrite(config);
 
   async function handleArgs() {
     if (!shoeDetails.image) return;
-    setLoading(true);
-    const imgUrl = await pinImage(
-      shoeDetails.image,
-      shoeDetails.name,
-      setLoading
-    );
-    const shoeDetailsArgs = [...Object.values(shoeDetails)];
-    shoeDetailsArgs[3] = parseEther(shoeDetailsArgs[3]?.toString() as string);
-    shoeDetailsArgs.pop();
-    setArgs([...shoeDetailsArgs, imgUrl]);
-    setPrepared(true);
+    try {
+      setLoading(true);
+      const imgUrl = await pinImage(shoeDetails.image, shoeDetails.name);
+      const { name, brand, size, price } = shoeDetails;
+      const priceInWei = parseEther(price.toString());
+      const args = [name, brand, size, priceInWei, imgUrl];
+      setArgs(args);
+      setPrepared(true);
+    } catch (e) {
+      console.error(e);
+      setPrepared(false);
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <>
-      <form onSubmit={(e) => e.preventDefault()} className="px-6 ">
-        <h1 className="has-text-weight-bold">Welcome Admin</h1>
-        <h3 className="mb-3 is-centered">Add Shoe</h3>
+      <form onSubmit={(e) => e.preventDefault()} className="px-6 pb-6 ">
+        <h1 className="has-text-weight-bold is-centered">Welcome Admin</h1>
         <ImageInput
           handleChange={updateShoeDetails}
           value={shoeDetails.image?.name}
@@ -112,10 +120,11 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
           <button
             className={`button is-primary ${isLoading ? "is-loading" : ""}`}
             onClick={() =>
-              writeAsync?.().then(() => {
+              createShoe?.().then(() => {
                 setToShow(true);
                 updateShoeDetails(defaultDetails);
                 setPreview(null);
+                refetch?.();
               })
             }
             disabled={!prepared || isLoading}>
@@ -139,8 +148,13 @@ const AddShoe = ({ setIndex }: AddShoeProps) => {
           </button>
         </div>
       )}
+      {error && (
+        <div className="is-centered mt-4" style={{ color: "red" }}>
+          {error}
+        </div>
+      )}
     </>
   );
 };
 
-export default AddShoe;
+export default CreateShoe;

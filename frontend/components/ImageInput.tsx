@@ -1,3 +1,4 @@
+import React from "react";
 import type { ImageInputProps } from "../types";
 
 const ImageInput = ({
@@ -22,7 +23,7 @@ const ImageInput = ({
       <label htmlFor={name}>
         <img
           className="preview-image"
-          src={preview ? preview : "/picture.png"}
+          src={preview ? preview : "/picture.svg"}
           alt={name}
           loading="lazy"
         />

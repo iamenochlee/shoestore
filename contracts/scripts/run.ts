@@ -35,8 +35,16 @@ export async function run(shoestore: ShoeStore, owner: string) {
       price: "0.01",
       size: 20,
     },
+    {
+      image:
+        "https://gateway.pinata.cloud/ipfs/QmVky4wTyzAhBMidMqkxY9Bga4CjaNVTivztWq5kaYqds3",
+      name: "Fendi Wears",
+      brand: "Fendi",
+      price: "0.05",
+      size: 20,
+    },
   ];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < details.length; i++) {
     const tx = await shoestore.createShoe(
       details[i].name,
       details[i].brand,

@@ -1,12 +1,15 @@
+import React, { useEffect, useState } from "react";
 import { useAccount, useContractRead } from "wagmi";
 import { abi, contractAddress } from "../constants";
-import { useState } from "react";
 import UserShoe from "./UserShoe";
-import { Shoe } from "../types";
+import type { Shoe } from "../types";
+import { useStore } from "zustand";
+import { refchListedStore } from "../store";
 
-const UserShoes = () => {
+const UserShoes = ({ index }: { index: number }) => {
   const { address } = useAccount();
   const [userShoes, setUserShoes] = useState<readonly Shoe[]>([]);
+  const { setFetch } = useStore(refchListedStore);
 
   const contractRead = useContractRead({
     abi,
@@ -14,22 +17,36 @@ const UserShoes = () => {
     functionName: "getAllUserShoes",
     args: [address],
     onSuccess: () => {
-      console.log(contractRead.data);
       setUserShoes(contractRead.data as Shoe[]);
+      setFetch(contractRead.refetch);
     },
+    watch: true,
   });
+
+  useEffect(() => {
+    setTimeout(() => {
+      contractRead.refetch();
+    }, 1000);
+  }, [index]);
+
   return (
     <div className="columns is-multiline">
       {userShoes && userShoes.length ? (
         [...userShoes].map((shoe) => {
-          return <UserShoe key={shoe.id._hex} shoe={shoe} />;
+          return (
+            <UserShoe
+              key={shoe.id._hex}
+              shoe={shoe}
+              refetch={contractRead.refetch}
+            />
+          );
         })
       ) : (
-        <p className="mt-6 px-6 ">
+        <h2 className="mt-4 px-2 ">
           {contractRead.isFetching
             ? "Fetching Your Shoes..."
-            : "Oops!, You have no shoes."}
-        </p>
+            : "Oops! You have no shoes."}
+        </h2>
       )}
     </div>
   );

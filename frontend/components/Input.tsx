@@ -1,3 +1,4 @@
+import React from "react";
 import { InputProps } from "../types";
 
 const Input = ({ name, handleChange, type, ...rest }: InputProps) => {
