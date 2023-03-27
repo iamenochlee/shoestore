@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="is-flex has-background-info has-text-white is-align-items-center is-justify-content-space-between py-4 px-6">
+    <footer className="is-flex has-text-white is-align-items-center is-justify-content-space-between py-4 px-6">
       <div>
         <h1 className="has-text-weight-bold is-size-4">MEGA SHOES</h1>
         <h2 className="is-size-6">copyright &#169;2023 </h2>

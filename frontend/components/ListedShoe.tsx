@@ -3,9 +3,13 @@ import { formatEther } from "ethers/lib/utils.js";
 import type { ListedShoeProps } from "../types";
 import { useAccount, useContractWrite } from "wagmi";
 import { abi, contractAddress } from "../constants";
+import { useStore } from "zustand";
+import { isAdminStore, refchTransactionsStore } from "../store";
 
 const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
   const { isConnected, address } = useAccount();
+  const { refetch: refetchTxs } = useStore(refchTransactionsStore);
+  const { isAdmin } = useStore(isAdminStore);
 
   const {
     isLoading,
@@ -24,7 +28,7 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
 
   const {
     isLoading: delistIsLoading,
-    writeAsync: unlist,
+    writeAsync: delist,
     isSuccess: isDelistSuccess,
   } = useContractWrite({
     abi,
@@ -35,9 +39,9 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
   });
 
   return (
-    <div className="column is-3">
-      <div className="card is-rounded">
-        <div>
+    <div className={`column ${isAdmin ? "is-3" : "is-2"}`}>
+      <div className="card has-background-black-ter has-text-white is-rounded">
+        <div className="card-image is-rounded">
           <figure className="image is-1by1" style={{ objectFit: "cover" }}>
             <img src={shoe.image} alt={shoe.name} />
           </figure>
@@ -65,7 +69,7 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
                 delistIsLoading ? "is-loading" : ""
               }`}
               onClick={() => {
-                unlist().then(refetch);
+                delist().then(refetch);
               }}>
               {isDelistSuccess ? "Delisted" : "Delist"}
             </button>
@@ -78,7 +82,12 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
                 isLoading ? "is-loading" : ""
               }`}
               onClick={() => {
-                buy().then(refetch);
+                buy().then(() => {
+                  refetch();
+                  setTimeout(() => {
+                    refetchTxs?.();
+                  }, 1000);
+                });
               }}>
               {isSuccess ? "Bought" : "Buy"}
             </button>

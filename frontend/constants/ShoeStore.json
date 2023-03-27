@@ -414,14 +414,14 @@
             "type": "uint256"
           },
           {
-            "internalType": "address",
-            "name": "with",
-            "type": "address"
-          },
-          {
             "internalType": "string",
             "name": "txType",
             "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
           }
         ],
         "internalType": "struct ShoeStore.History[]",

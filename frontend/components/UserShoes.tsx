@@ -42,11 +42,11 @@ const UserShoes = ({ index }: { index: number }) => {
           );
         })
       ) : (
-        <p className="mt-6 px-6 ">
+        <h2 className="mt-4 px-2 ">
           {contractRead.isFetching
             ? "Fetching Your Shoes..."
-            : "Oops!, You have no shoes."}
-        </p>
+            : "Oops! You have no shoes."}
+        </h2>
       )}
     </div>
   );

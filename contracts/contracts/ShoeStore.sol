@@ -20,8 +20,8 @@ contract ShoeStore {
         string name;
         string brand;
         uint price;
-        address with;
         string txType;
+        uint time;
     }
     // an array to store all the shoes
     Shoe[] public shoes;
@@ -106,6 +106,16 @@ contract ShoeStore {
             Shoe(id, _name, _brand, _size, msg.sender, _price, _image, false)
         );
         emit ShoeCreated(id, _name, _brand, _size, msg.sender, _price, _image);
+        userHistory[msg.sender].push(
+            History({
+                id: id,
+                name: _name,
+                brand: _brand,
+                price: _price,
+                txType: "create",
+                time: block.timestamp
+            })
+        );
     }
 
     /// This is called to change the price of shoe
@@ -170,8 +180,8 @@ contract ShoeStore {
                 name: shoes[_shoeId].name,
                 brand: shoes[_shoeId].brand,
                 price: shoes[_shoeId].price,
-                with: seller,
-                txType: "bought"
+                txType: "bought",
+                time: block.timestamp
             })
         );
         userHistory[seller].push(
@@ -180,8 +190,8 @@ contract ShoeStore {
                 name: shoes[_shoeId].name,
                 brand: shoes[_shoeId].brand,
                 price: shoes[_shoeId].price,
-                with: msg.sender,
-                txType: "sold"
+                txType: "sold",
+                time: block.timestamp
             })
         );
         emit ShoeBought(_shoeId, msg.sender, seller, shoes[_shoeId].price);

@@ -36,7 +36,7 @@ const ListedShoes = ({ index }: { index: number }) => {
           );
         })
       ) : (
-        <h2 className="mt-6 px-5 ">
+        <h2 className="mt-4 px-2 ">
           {contractRead.isFetching
             ? "Fetching Listed Shoes..."
             : "No Shoes are Currently For Sale"}

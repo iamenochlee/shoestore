@@ -11,11 +11,13 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useState } from "react";
 import { abi, contractAddress } from "../constants";
+import { useStore } from "zustand";
+import { isAdminStore } from "../store";
 
 function App() {
   const { address, isConnected } = useAccount();
   const [index, setIndex] = useState(0);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { isAdmin, setUserIsAdmin } = useStore(isAdminStore);
 
   const contractRead = useContractRead({
     abi,
@@ -23,8 +25,7 @@ function App() {
     functionName: "admins",
     args: [address],
     onSuccess: () => {
-      console.log(contractRead.data);
-      setIsAdmin(contractRead.data as boolean);
+      setUserIsAdmin(contractRead.data as boolean);
     },
     watch: true,
   });
@@ -36,21 +37,23 @@ function App() {
   return (
     <>
       <Header />
-      <div className="App p-3 px-6">
-        <div className="columns is-flex">
-          <div className={`column ${isAdmin ? "is-two-thirds" : ""}`}>
-            <div className="columns is-flex is-flex-direction-column main">
-              <Navbar
-                setIndex={setIndex}
-                isConnected={isConnected}
-                index={index}
-              />
+      <div className="App p-3 pb-6 px-6 has-text-white">
+        <div className="columns pb-6 is-flex">
+          <div className={`column ${isAdmin ? "is-two-thirds" : ""} pb-5`}>
+            <div className="columns mt-2 is-flex is-flex-direction-column main">
+              {isConnected ? (
+                <Navbar setIndex={setIndex} index={index} />
+              ) : (
+                <p className="is-size-5 mb-5 has-text-weight-bold has-text-info is-centered">
+                  Please Connect Your Wallet To Continue
+                </p>
+              )}
               {index === 0 && <ListedShoes index={index} />}
               {index === 1 && <UserShoes index={index} />}
             </div>
           </div>
           {isConnected && isAdmin && (
-            <div className="column is-one-thirds">
+            <div className="column is-one-thirds mt-6 pb-6 has-dark-bg">
               <CreateShoe setIndex={setIndex} />
             </div>
           )}

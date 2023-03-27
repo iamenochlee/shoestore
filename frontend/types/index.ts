@@ -7,7 +7,7 @@ export type Args =
   | undefined;
 
 export type Preview = string | null | ArrayBuffer | undefined;
-export type TXType = "bought" | "sold";
+export type TXType = "bought" | "sold" | "create";
 export interface Shoe {
   id: BigNumber;
   name: string;
@@ -25,6 +25,7 @@ export interface UserHistory {
   price: BigNumber;
   with: string;
   txType: TXType;
+  time: BigNumber;
 }
 
 export interface ShoeDetails {
@@ -56,7 +57,6 @@ export interface ImageInputProps {
 
 export interface NavbarProps {
   setIndex: StateDispatch<number>;
-  isConnected: boolean;
   index: number;
 }
 
@@ -66,6 +66,15 @@ export interface AddShoeProps {
 
 export interface ListedShoeProps {
   shoe: Shoe;
+  refetch: () => void;
+}
+
+export interface ModalProps {
+  newPrice: string;
+  setNewPrice: StateDispatch<string>;
+  toggleModal: () => void;
+  shoe: Shoe;
+  isActive: boolean;
   refetch: () => void;
 }
 

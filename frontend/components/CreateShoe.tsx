@@ -63,9 +63,8 @@ const CreateShoe = ({ setIndex }: AddShoeProps) => {
 
   return (
     <>
-      <form onSubmit={(e) => e.preventDefault()} className="px-6 ">
-        <h1 className="has-text-weight-bold">Welcome Admin</h1>
-        <h3 className="mb-3 is-centered">Add Shoe</h3>
+      <form onSubmit={(e) => e.preventDefault()} className="px-6 pb-6 ">
+        <h1 className="has-text-weight-bold is-centered">Welcome Admin</h1>
         <ImageInput
           handleChange={updateShoeDetails}
           value={shoeDetails.image?.name}

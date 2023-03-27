@@ -2,33 +2,88 @@
   font-family: "Open Sans", sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* main */
 #root {
   display: flex;
   min-height: 105vh;
   flex-direction: column;
   justify-content: space-between;
 }
-h1 {
-  text-align: center;
-}
+
 h2,
 li {
   font-size: 0.9rem !important;
-}
-h3 {
-  font-size: 1.2rem !important;
-}
-.main {
-  min-height: 85vh;
 }
 
 footer {
   min-height: 60px;
 }
-li {
-  cursor: pointer;
+
+label {
+  font-size: 0.8rem !important;
+  font-weight: normal !important;
+  color: white !important;
 }
 
+/*utils*/
+.gap-1 {
+  gap: 2em;
+}
+
+.gap-2 {
+  gap: 0.3em;
+}
+
+.is-centered {
+  margin: 0 auto;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+.has-dark-bg {
+  background-color: #30323d;
+  border-radius: 12px;
+  margin-left: 1.3em;
+  height: fit-content !important;
+}
+
+.highlight {
+  border-radius: 100vmax !important;
+  outline-offset: 4px;
+  text-align: center;
+  width: 60px !important;
+}
+.is-bought {
+  outline: 3px solid green !important;
+}
+
+.is-sold {
+  outline: 3px solid red !important;
+}
+.is-create {
+  outline: 3px solid rgb(39, 39, 248) !important;
+}
+
+/* styles */
+.main {
+  min-height: 90vh;
+}
+.App {
+  background-color: #1a1a1a;
+}
+
+.link {
+  color: white;
+}
+
+footer {
+  background-color: #455561;
+}
 .preview-image {
   width: 300px;
   height: 300px;
@@ -36,29 +91,15 @@ li {
   margin-inline: auto;
 }
 
-.gap-1 {
-  gap: 2em;
+.card-image {
+  background-color: #455561;
 }
 
 .form {
   padding-inline: 3em;
   overflow: hidden;
 }
-.is-one-thirds {
-  margin-top: -2.5rem;
-}
 
-.is-centered {
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
 .is-centered img {
   cursor: pointer;
-}
-
-label {
-  font-size: 0.8rem !important;
-  font-weight: normal !important;
 }
