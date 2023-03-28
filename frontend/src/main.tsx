@@ -8,7 +8,7 @@ import { goerli, hardhat } from "wagmi/chains";
 const client = createClient(
   getDefaultClient({
     appName: "shoeStore",
-    chains: [hardhat, goerli],
+    chains: [goerli, hardhat],
   })
 );
 
