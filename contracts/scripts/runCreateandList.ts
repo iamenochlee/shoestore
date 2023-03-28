@@ -8,7 +8,7 @@ export async function run(shoestore: ShoeStore, owner: string) {
         "https://gateway.pinata.cloud/ipfs/QmeqbrRRcsGykFrxNnuiZm75gCzs5q8YhwFyEU7vpUMhfD",
       name: "Jordan 1",
       brand: "Nike",
-      price: "0.04",
+      price: "0.4",
       size: 12,
     },
     {
@@ -16,7 +16,7 @@ export async function run(shoestore: ShoeStore, owner: string) {
         "https://gateway.pinata.cloud/ipfs/QmdbssEotGGuHgfcPnHDgEcoMezjFs8BS63Zsgj43n4CCE",
       name: "Adidas NMD R1",
       brand: "Addidas",
-      price: "0.005",
+      price: "5",
       size: 15,
     },
     {
@@ -24,7 +24,7 @@ export async function run(shoestore: ShoeStore, owner: string) {
         "https://gateway.pinata.cloud/ipfs/QmandiauSML764Zwxt869GSZ45JquD8HWHX9BtST9mp9EN",
       name: "Fresh Foam X",
       brand: "New Balance",
-      price: "0.09",
+      price: "9",
       size: 10,
     },
     {
@@ -32,7 +32,7 @@ export async function run(shoestore: ShoeStore, owner: string) {
         "https://gateway.pinata.cloud/ipfs/QmXSGZ5u5xMzCLdwsJk5tNKLaSWaNoMkPuvtLTA8e9cziv",
       name: "Puma-180",
       brand: "Puma",
-      price: "0.01",
+      price: "0.1",
       size: 20,
     },
     {
@@ -40,7 +40,7 @@ export async function run(shoestore: ShoeStore, owner: string) {
         "https://gateway.pinata.cloud/ipfs/QmVky4wTyzAhBMidMqkxY9Bga4CjaNVTivztWq5kaYqds3",
       name: "Fendi Wears",
       brand: "Fendi",
-      price: "0.05",
+      price: "500.3",
       size: 20,
     },
   ];

@@ -4,11 +4,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "deploy": "hardhat run scripts/deploy.ts",
-    "listshoe": "hardhat run scripts/list.ts",
+    "deploy:store": "hardhat run scripts/deploy.ts",
+    "deploy:token": "hardhat run scripts/deployToken.ts",
     "drop": "hardhat run scripts/drop.ts"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^4.8.2",
     "dotenv": "^16.0.3",
     "hardhat": "^2.11.1"
   },

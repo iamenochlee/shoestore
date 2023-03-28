@@ -20,7 +20,7 @@ const ChangePriceModal = ({
     abi,
     address: contractAddress,
     functionName: "changeShoePrice",
-    args: [shoe.id, parseEther(newPrice.toString())],
+    args: [shoe.id, parseEther(newPrice.toString() || "0")],
     mode: "recklesslyUnprepared",
   });
 
@@ -53,7 +53,7 @@ const ChangePriceModal = ({
                 console.log(newPrice);
               }}
             />
-            <p className="has-text-weight-bold">ETH</p>
+            <p className="has-text-weight-bold">MEGA</p>
           </div>
           <button
             className={`button ${

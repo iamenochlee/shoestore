@@ -1,15 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import { formatEther } from "ethers/lib/utils.js";
 import type { ListedShoeProps } from "../types";
 import { useAccount, useContractWrite } from "wagmi";
-import { abi, contractAddress } from "../constants";
+import { abi, tokenAbi, contractAddress, tokenAddress } from "../constants";
 import { useStore } from "zustand";
-import { isAdminStore, refchTransactionsStore } from "../store";
+import {
+  UserBalanceStore,
+  isAdminStore,
+  refchTransactionsStore,
+} from "../store";
+import { BigNumber } from "ethers";
 
 const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
   const { isConnected, address } = useAccount();
+  const [error, showError] = useState(false);
   const { refetch: refetchTxs } = useStore(refchTransactionsStore);
   const { isAdmin } = useStore(isAdminStore);
+  const { balance } = useStore(UserBalanceStore);
+
+  const { isLoading: approveTokensIsLoading, writeAsync: approveTokens } =
+    useContractWrite({
+      abi: tokenAbi,
+      address: tokenAddress,
+      functionName: "approve",
+      args: [contractAddress, shoe.price],
+      mode: "recklesslyUnprepared",
+    });
 
   const {
     isLoading,
@@ -20,9 +36,6 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
     address: contractAddress,
     functionName: "buyShoe",
     args: [shoe.id],
-    overrides: {
-      value: shoe.price,
-    },
     mode: "recklesslyUnprepared",
   });
 
@@ -55,7 +68,7 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
               Price:
               <span className="has-text-weight-bold">
                 {" "}
-                {formatEther(shoe.price.toString()).slice(0, 5)} ETH
+                {formatEther(shoe.price).slice(0, 5)} MEGA
               </span>
             </li>
           </ul>
@@ -75,23 +88,31 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
             </button>
           ) : (
             <button
-              disabled={isLoading || !isConnected}
+              disabled={isLoading || approveTokensIsLoading || !isConnected}
               className={`button ${
                 isSuccess ? "is-warning" : "is-primary"
               }              is-fullwidth has-text-weight-bold ${
-                isLoading ? "is-loading" : ""
+                isLoading || approveTokensIsLoading ? "is-loading" : ""
               }`}
               onClick={() => {
-                buy().then(() => {
-                  refetch();
-                  setTimeout(() => {
-                    refetchTxs?.();
-                  }, 1000);
-                });
+                showError(false);
+                if (balance && balance.sub(shoe.price) < BigNumber.from(0)) {
+                  showError(true);
+                  return;
+                }
+                approveTokens()
+                  .then(() => buy())
+                  .then(() => {
+                    refetch();
+                    setTimeout(() => {
+                      refetchTxs?.();
+                    }, 1000);
+                  });
               }}>
               {isSuccess ? "Bought" : "Buy"}
             </button>
           )}
+          {error && <div className="error p-1 ">Insufficient MEGA Tokens</div>}
         </div>
       </div>
     </div>

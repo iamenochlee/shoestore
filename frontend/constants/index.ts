@@ -1,3 +1,5 @@
 import abi from "./ShoeStore.json";
+import tokenAbi from "./MegaToken.json";
 import contractAddress from "./address";
-export { abi, contractAddress };
+import tokenAddress from "./tokenAddress";
+export { abi, tokenAbi, contractAddress, tokenAddress };

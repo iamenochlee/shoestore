@@ -1,21 +1,28 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { ShoeStore } from "../typechain-types";
+import { MegaToken, ShoeStore } from "../typechain-types";
 import { TransactionResponse } from "@ethersproject/providers";
-import { BigNumber } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber } from "ethers";
+import { run as runDrop } from "../scripts/runDrop";
 
 describe("ShoeStore", function () {
-  let shoeStore: ShoeStore;
-  let owner: SignerWithAddress;
-  let buyer: any;
-  let admin: any;
-
+  let shoeStore: ShoeStore,
+    owner: SignerWithAddress,
+    buyer: any,
+    admin: any,
+    token: MegaToken;
   beforeEach(async function () {
-    [owner, buyer, admin] = await ethers.getSigners();
-    const ShoeStore = await ethers.getContractFactory("ShoeStore");
+    [owner, admin, buyer] = await ethers.getSigners();
+    const MegaToken = await ethers.getContractFactory("MegaToken");
+    token = await MegaToken.deploy(1000000);
+    await runDrop(token, owner.address, [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    ]);
 
-    shoeStore = await ShoeStore.deploy(admin.address);
+    const ShoeStore = await ethers.getContractFactory("ShoeStore");
+    shoeStore = await ShoeStore.deploy(admin.address, token.address);
     await shoeStore.deployed();
   });
 
@@ -27,6 +34,10 @@ describe("ShoeStore", function () {
     });
     it("sets the commission rate correctly", async () => {
       expect(await shoeStore.commissionRate()).to.equal(1);
+    });
+
+    it("sets MEGA Token address correctly", async () => {
+      expect(await shoeStore.token()).to.equal(token.address);
     });
   });
 
@@ -188,30 +199,27 @@ describe("ShoeStore", function () {
     });
   });
   describe("buyShoe", function () {
-    let tx: TransactionResponse, price: BigNumber;
+    let tx: TransactionResponse, beforeBalance: BigNumber;
+    const price = ethers.utils.parseEther("1");
     beforeEach(async function () {
       await shoeStore.createShoe(
         "Jordan 1",
         "Nike",
         10,
-        ethers.utils.parseEther("1"),
+        price,
         "https://example.com/image.jpg"
       );
-      const ownerHistory = await shoeStore.getUserHistory(owner.address);
-      expect(ownerHistory.length).to.equal(1);
-
-      price = ethers.utils.parseEther("1");
+      beforeBalance = await token.balanceOf(owner.address);
       await shoeStore.connect(owner).listShoe(0);
+      await token.connect(buyer).approve(shoeStore.address, price);
+      tx = await shoeStore.connect(buyer).buyShoe(0);
+    });
+    it("should send the tokens to the seller", async () => {
+      const afterBalance = await token.balanceOf(owner.address);
+      const commission = price.mul(BigNumber.from(1)).div(BigNumber.from(100));
+      const amountToSeller = price.sub(commission);
 
-      const balanceBefore = await buyer.getBalance();
-      tx = await shoeStore.connect(buyer).buyShoe(0, { value: price });
-      const receipt = await tx.wait();
-
-      const balanceAfter = await buyer.getBalance();
-      if (tx.gasPrice) {
-        const gasCost = tx.gasPrice.mul(receipt.gasUsed);
-        expect(balanceAfter.add(gasCost)).to.equal(balanceBefore.sub(price));
-      }
+      expect(afterBalance).to.equal(beforeBalance.add(amountToSeller));
     });
     it("should update the users history", async () => {
       const ownerHistory = await shoeStore.getUserHistory(owner.address);
@@ -228,24 +236,20 @@ describe("ShoeStore", function () {
       expect(shoes.length).to.equal(0);
 
       expect(shoeOwner.owner).to.equal(buyer.address);
-
-      describe("withdraw", function () {
-        it("should transfer the balance to the admin", async () => {
-          const balance = await ethers.provider.getBalance(shoeStore.address);
-          await expect(shoeStore.withdraw()).to.changeEtherBalance(
-            owner,
-            balance
-          );
-          expect(await ethers.provider.getBalance(shoeStore.address)).to.equal(
-            0
-          );
-        });
-      });
     });
     it("should emits event on shoe purchase", async () => {
       await expect(tx)
         .to.emit(shoeStore, "ShoeBought")
         .withArgs(0, buyer.address, owner.address, price);
+    });
+    it("(widthrawing): should transfer the balance to the admin", async () => {
+      const balance = await token.balanceOf(shoeStore.address);
+      await expect(shoeStore.withdraw()).to.changeTokenBalance(
+        token,
+        owner,
+        balance
+      );
+      expect(await token.balanceOf(shoeStore.address)).to.equal(0);
     });
   });
 });

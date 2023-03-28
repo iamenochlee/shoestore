@@ -12,7 +12,7 @@ const config: HardhatUserConfig = {
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: ["ShoeStore"],
+    only: ["ShoeStore", "MegaToken"],
     spacing: 2,
     format: "json",
   },
