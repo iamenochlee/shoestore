@@ -113,8 +113,8 @@ footer {
 .error {
   position: absolute;
   top: 58%;
-  text-align: right;
-  font-size: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
   color: orangered;
   font-weight: 500;
   background-color: #1a1a1a;

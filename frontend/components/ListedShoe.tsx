@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { formatEther } from "ethers/lib/utils.js";
 import type { ListedShoeProps } from "../types";
 import { useAccount, useContractWrite } from "wagmi";
@@ -50,6 +50,10 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
     args: [shoe.id],
     mode: "recklesslyUnprepared",
   });
+
+  useEffect(() => {
+    showError(false);
+  }, [isConnected]);
 
   return (
     <div className={`column ${isAdmin ? "is-3" : "is-2"}`}>
