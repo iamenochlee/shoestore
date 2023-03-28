@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract ShoeStore {
+    //ERC20 MEGA Token
+    address public token;
+
     //a shoe with all feature it will have
     struct Shoe {
         uint id;
@@ -78,12 +83,14 @@ contract ShoeStore {
 
     /// constructor: set the owner to the deployer of the contract
     /// the commissionRate to 1%
-    /// also sets an admin
-    /// @param _admin address of an admi
-    constructor(address _admin) {
+    /// also sets an admin and token address
+    /// @param _admin address of an admin
+    /// @param _tokenAddress address of MEGA Token
+    constructor(address _admin, address _tokenAddress) {
         admins[msg.sender] = true;
         admins[_admin] = true;
         commissionRate = 1;
+        token = _tokenAddress;
     }
 
     /// This creates a new Shoe and adds it to the shoe Array also
@@ -105,7 +112,6 @@ contract ShoeStore {
         shoes.push(
             Shoe(id, _name, _brand, _size, msg.sender, _price, _image, false)
         );
-        emit ShoeCreated(id, _name, _brand, _size, msg.sender, _price, _image);
         userHistory[msg.sender].push(
             History({
                 id: id,
@@ -116,6 +122,7 @@ contract ShoeStore {
                 time: block.timestamp
             })
         );
+        emit ShoeCreated(id, _name, _brand, _size, msg.sender, _price, _image);
     }
 
     /// This is called to change the price of shoe
@@ -163,14 +170,31 @@ contract ShoeStore {
 
     /// This function is called to purchase a shoe
     /// it transfers owner of the shoe to the buyer adds a new puchase History
-    /// it removes commission of 1% and sends the remainning to the seller
+    /// it removes commission of 1% and sends the remainning tokens to the seller
     /// @param _shoeId the id of the shoe
-    function buyShoe(uint256 _shoeId) public payable {
+    function buyShoe(uint256 _shoeId) public {
         require(_shoeId >= 0 && _shoeId < shoes.length, "Invalid shoe ID");
         require(shoes[_shoeId].isListed == true, "This shoe is not for sale");
-        require(msg.value >= shoes[_shoeId].price, "Insufficient funds");
-        address payable seller = payable(shoes[_shoeId].owner);
-        seller.transfer((shoes[_shoeId].price * (100 - commissionRate)) / 100);
+        uint256 allowedTokens = IERC20(token).allowance(
+            msg.sender,
+            address(this)
+        );
+        require(
+            allowedTokens >= shoes[_shoeId].price,
+            "Not enough allowed tokens"
+        );
+
+        address seller = shoes[_shoeId].owner;
+        IERC20(token).transferFrom(
+            msg.sender,
+            address(this),
+            shoes[_shoeId].price
+        );
+
+        uint256 commission = (shoes[_shoeId].price * commissionRate) / 100;
+        uint256 amountToSeller = shoes[_shoeId].price - commission;
+        IERC20(token).transfer(seller, amountToSeller);
+
         shoes[_shoeId].owner = msg.sender;
         shoes[_shoeId].isListed = false;
         listedShoesCount--;
@@ -240,10 +264,12 @@ contract ShoeStore {
         return userHistory[_owner];
     }
 
-    /// This is called to withdraw all the balance of the contract
-    /// gotten from shoe purchaes to the owner
+    /// This is called to withdraw all the balances of the contract
+    /// gotten from shoe purchaes to the calling admin
     function withdraw() external onlyAdmins {
         payable(address(msg.sender)).transfer(address(this).balance);
+        uint balance = IERC20(token).balanceOf(address(this));
+        IERC20(token).transfer(msg.sender, balance);
     }
 
     receive() external payable {}

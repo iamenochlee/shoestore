@@ -38,6 +38,10 @@ label {
   gap: 0.3em;
 }
 
+.is-rounded {
+  border-radius: 5px;
+}
+
 .is-centered {
   margin: 0 auto;
   display: flex;
@@ -90,7 +94,9 @@ footer {
   object-fit: cover;
   margin-inline: auto;
 }
-
+.card {
+  position: relative;
+}
 .card-image {
   background-color: #455561;
 }
@@ -102,4 +108,15 @@ footer {
 
 .is-centered img {
   cursor: pointer;
+}
+
+.error {
+  position: absolute;
+  top: 58%;
+  text-align: right;
+  font-size: 1rem;
+  color: orangered;
+  font-weight: 500;
+  background-color: #1a1a1a;
+  width: 100%;
 }

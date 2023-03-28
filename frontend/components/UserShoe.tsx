@@ -56,7 +56,7 @@ const UserShoe = ({ shoe, refetch }: UserShoeProps) => {
             <div className="price is-flex is-align-items-center gap-2">
               <li> Price:</li>{" "}
               <span className="has-text-weight-bold mr-4">
-                {formatEther(shoe.price.toString()).slice(0, 5)} ETH
+                {formatEther(shoe.price).slice(0, 5)} MEGA
               </span>
               <button
                 className="button is-small is-rounded"
