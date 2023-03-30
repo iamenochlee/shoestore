@@ -11,7 +11,7 @@ const Transaction = ({ history }: { history: UserHistory }) => {
       <td>{history.brand}</td>
       <td>
         {formatEther(history.price).slice(0, 5)}{" "}
-        <small className="has-text-weight-bold">ETH</small>
+        <small className="has-text-weight-bold">MEGA</small>
       </td>
       <td>
         <p
