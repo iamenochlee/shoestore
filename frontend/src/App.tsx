@@ -32,6 +32,9 @@ function App() {
 
   useEffect(() => {
     contractRead.refetch();
+    if (!isConnected) {
+      setIndex(0);
+    }
   }, [isConnected]);
 
   return (
