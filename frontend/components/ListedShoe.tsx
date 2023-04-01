@@ -113,7 +113,7 @@ const ListedShoe = ({ shoe, refetch }: ListedShoeProps) => {
                     }, 1000);
                   });
               }}>
-              {isSuccess ? "Bought" : "Buy"}
+              {isSuccess ? "Sold" : "Buy"}
             </button>
           )}
           {error && <div className="error p-1 ">Insufficient MEGA Tokens</div>}
